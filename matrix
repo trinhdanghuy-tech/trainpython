@@ -1,0 +1,49 @@
+import numpy as np
+
+# Khởi tạo tập A và quan hệ R dưới dạng danh sách các cặp
+elements = ["d", "b", "p", "e", "q", "h", "g"]
+relation = {("b", "q"), ("d", "q"), ("e", "e"), ("g", "d"), ("g", "h"), 
+            ("h", "g"), ("p", "d"), ("p", "p"), ("q", "d"), ("q", "h")}
+
+# Hàm tạo ma trận từ danh sách cặp quan hệ
+def create_matrix(elements, relation):
+    n = len(elements)
+    matrix = np.zeros((n, n), dtype=int)
+    index_map = {element: i for i, element in enumerate(elements)}
+    for (x, y) in relation:
+        i, j = index_map[x], index_map[y]
+        matrix[i][j] = 1
+    return matrix, index_map
+
+# Bước 1: Thêm các cặp để quan hệ có tính phản xạ
+for element in elements:
+    relation.add((element, element))
+
+# Bước 2: Thêm các cặp để quan hệ có tính đối xứng
+relation_symmetric = relation.copy()
+for (x, y) in relation:
+    relation_symmetric.add((y, x))
+relation = relation_symmetric
+
+# Bước 3: Thêm các cặp để quan hệ có tính bắc cầu
+# Thực hiện việc thêm cho đến khi không còn cặp nào mới cần thêm
+while True:
+    new_pairs = set()
+    for (x, y) in relation:
+        for (a, b) in relation:
+            if y == a and (x, b) not in relation:
+                new_pairs.add((x, b))
+    if not new_pairs:
+        break
+    relation.update(new_pairs)
+
+# Chuyển quan hệ thành ma trận
+matrix, index_map = create_matrix(elements, relation)
+
+# Hiển thị kết quả
+print("Quan hệ tương đương nhỏ nhất chứa R:")
+for (x, y) in sorted(relation):
+    print(f"({x}, {y})")
+
+print("\nMa trận biểu diễn quan hệ:")
+print(matrix)
